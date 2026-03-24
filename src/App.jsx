@@ -189,6 +189,16 @@ export default function App() {
       try {
         const data = await gasGet("getEvent");
         if (data.error || !data.name) { setPage("home"); setLoading(false); return; }
+        const normalizeTime = (t) => {
+          if (!t) return "14:00";
+          if (t.includes("T")) {
+             const d = new Date(t);
+             return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+          }
+          return t;
+        };
+        data.startTime = normalizeTime(data.startTime);
+        data.endTime = normalizeTime(data.endTime);
         const slots = generateSlots(data.dates, data.startTime, data.endTime, data.slotMinutes, data.excludedSlots || []);
         setEvent({ id: "gas", ...data });
         setAllSlots(slots);
@@ -324,6 +334,7 @@ export default function App() {
               { key: "dashboard", label: "📊 ダッシュボード" },
               { key: "assignment", label: "🗓 割り当て" },
               { key: "preview", label: "👤 保護者フォーム" },
+              { key: "home", label: "⚙️ イベント設定" },
             ].map((tab) => (
               <button key={tab.key} onClick={() => tab.key === "preview" ? setParentView(true) : setPage(tab.key)}
                 style={{ ...btn("transparent", "rgba(255,255,255,0.8)", "sm"), borderBottom: page === tab.key ? "2px solid #fff" : "2px solid transparent", borderRadius: 0, color: page === tab.key ? "#fff" : "rgba(255,255,255,0.7)", fontWeight: page === tab.key ? 700 : 400, fontSize: 13 }}>
